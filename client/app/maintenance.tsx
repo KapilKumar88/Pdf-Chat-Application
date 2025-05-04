@@ -30,7 +30,7 @@ export default function Maintenance() {
             Refresh page
           </Button>
           <Button variant="outline" className="w-full gap-2" asChild>
-            <Link href="https://status.docuchat.ai" target="_blank" rel="noopener noreferrer">
+            <Link href="/" target="_blank" rel="noopener noreferrer">
               <Clock className="h-4 w-4" />
               Check status
             </Link>

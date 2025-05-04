@@ -1,0 +1,308 @@
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { MessageSquare, Plus, Search, FileText, Folder, User, LogOut, Settings, X } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+// Mock data for chat history
+const chatHistory = [
+  {
+    id: "1",
+    title: "Project Research",
+    preview: "Analysis of market trends and competitor strategies",
+    date: "2 hours ago",
+    documents: ["Market Analysis.pdf", "Competitor Report.docx"],
+  },
+  {
+    id: "2",
+    title: "Meeting Notes",
+    preview: "Notes from the quarterly planning meeting",
+    date: "Yesterday",
+    documents: ["Q2 Planning.pdf"],
+  },
+  {
+    id: "3",
+    title: "Product Specifications",
+    preview: "Technical specifications for the new product line",
+    date: "3 days ago",
+    documents: ["Product Specs.pdf", "Technical Requirements.docx"],
+  },
+  {
+    id: "4",
+    title: "Financial Report",
+    preview: "Q1 financial performance and projections",
+    date: "1 week ago",
+    documents: ["Q1 Financials.pdf", "Budget Forecast.xlsx"],
+  },
+  {
+    id: "5",
+    title: "User Research",
+    preview: "Findings from the latest user testing sessions",
+    date: "2 weeks ago",
+    documents: ["User Testing Results.pdf", "Feedback Summary.docx"],
+  },
+]
+
+// Mock data for user documents
+const userDocuments = [
+  { id: "1", name: "Market Analysis.pdf", type: "pdf", size: "2.4 MB", date: "2 days ago" },
+  { id: "2", name: "Competitor Report.docx", type: "docx", size: "1.8 MB", date: "2 days ago" },
+  { id: "3", name: "Q2 Planning.pdf", type: "pdf", size: "3.2 MB", date: "3 days ago" },
+  { id: "4", name: "Product Specs.pdf", type: "pdf", size: "1.5 MB", date: "5 days ago" },
+  { id: "5", name: "Technical Requirements.docx", type: "docx", size: "2.1 MB", date: "5 days ago" },
+  { id: "6", name: "Q1 Financials.pdf", type: "pdf", size: "4.7 MB", date: "1 week ago" },
+  { id: "7", name: "Budget Forecast.xlsx", type: "xlsx", size: "1.2 MB", date: "1 week ago" },
+  { id: "8", name: "User Testing Results.pdf", type: "pdf", size: "3.5 MB", date: "2 weeks ago" },
+  { id: "9", name: "Feedback Summary.docx", type: "docx", size: "1.9 MB", date: "2 weeks ago" },
+]
+
+interface ChatSidebarProps {
+  isMobile?: boolean
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Readonly<ChatSidebarProps>) {
+  const [activeTab, setActiveTab] = useState<"chats" | "documents">("chats")
+  const [searchQuery, setSearchQuery] = useState("")
+  const pathname = usePathname()
+
+  const handleLogout = () => {
+  }
+
+  const sidebarContent = (
+    <div className="flex h-full flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarImage src="/placeholder.svg?height=40&width=40" alt={"User"} />
+            <AvatarFallback>{ "U"}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-medium text-sm">{ "User"}</p>
+            <p className="text-xs text-muted-foreground">{"user@example.com"}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href="/settings">
+                    <Settings className="h-4 w-4" />
+                    <span className="sr-only">Settings</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Settings</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <User className="h-4 w-4" />
+                <span className="sr-only">User menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/profile">Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/settings">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {isMobile && (
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b">
+        <button
+          className={cn(
+            "flex-1 py-3 text-center text-sm font-medium transition-colors",
+            activeTab === "chats"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+          onClick={() => setActiveTab("chats")}
+        >
+          Chats
+        </button>
+        <button
+          className={cn(
+            "flex-1 py-3 text-center text-sm font-medium transition-colors",
+            activeTab === "documents"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+          onClick={() => setActiveTab("documents")}
+        >
+          Documents
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="p-4">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder={`Search ${activeTab === "chats" ? "chats" : "documents"}...`}
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Content */}
+      <ScrollArea className="flex-1">
+        {activeTab === "chats" ? (
+          <div className="space-y-1 p-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-2 mb-2 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary"
+              asChild
+            >
+              <Link href="/dashboard">
+                <Plus className="h-4 w-4" />
+                <span>New Chat</span>
+              </Link>
+            </Button>
+
+            {chatHistory.map((chat) => (
+              <Button
+                key={chat.id}
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start text-left h-auto py-3 px-4",
+                  pathname === `/chat/${chat.id}` && "bg-muted",
+                )}
+                asChild
+              >
+                <Link href={`/chat/${chat.id}`}>
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <div className="flex items-center w-full">
+                      <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <span className="font-medium truncate">{chat.title}</span>
+                      <span className="ml-auto text-xs text-muted-foreground">{chat.date}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate w-full pl-6">{chat.preview}</p>
+                    {chat.documents.length > 0 && (
+                      <div className="flex items-center gap-1 pl-6 mt-1">
+                        <FileText className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">{chat.documents.length} documents</span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              </Button>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-1 p-2">
+            <div className="flex items-center justify-between px-4 py-2">
+              <h3 className="text-sm font-medium">Your Documents</h3>
+              <Button variant="ghost" size="sm" className="h-8 gap-1">
+                <Plus className="h-3.5 w-3.5" />
+                <span>Upload</span>
+              </Button>
+            </div>
+
+            {userDocuments.map((doc) => (
+              <Button key={doc.id} variant="ghost" className="w-full justify-start text-left h-auto py-3 px-4">
+                <div className="flex items-start gap-3 w-full">
+                  <div className="bg-primary/10 p-2 rounded">
+                    <FileText className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex flex-col gap-1 flex-1 min-w-0">
+                    <span className="font-medium text-sm truncate">{doc.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs uppercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                        {doc.type}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{doc.size}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">{doc.date}</span>
+                    </div>
+                  </div>
+                </div>
+              </Button>
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+
+      {/* Footer */}
+      <div className="p-4 border-t">
+        <Button variant="outline" className="w-full gap-2" asChild>
+          <Link href="/documents/upload">
+            <Folder className="h-4 w-4" />
+            <span>Document Manager</span>
+          </Link>
+        </Button>
+      </div>
+    </div>
+  )
+
+  if (isMobile) {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+              onClick={onClose}
+            />
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ ease: "easeInOut", duration: 0.3 }}
+              className="fixed inset-y-0 left-0 z-50 w-80 bg-background border-r shadow-lg"
+            >
+              {sidebarContent}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    )
+  }
+
+  return <div className="h-full w-80 border-r bg-background">{sidebarContent}</div>
+}
