@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -19,58 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-// Mock data for chat history
-const chatHistory = [
-  {
-    id: "1",
-    title: "Project Research",
-    preview: "Analysis of market trends and competitor strategies",
-    date: "2 hours ago",
-    documents: ["Market Analysis.pdf", "Competitor Report.docx"],
-  },
-  {
-    id: "2",
-    title: "Meeting Notes",
-    preview: "Notes from the quarterly planning meeting",
-    date: "Yesterday",
-    documents: ["Q2 Planning.pdf"],
-  },
-  {
-    id: "3",
-    title: "Product Specifications",
-    preview: "Technical specifications for the new product line",
-    date: "3 days ago",
-    documents: ["Product Specs.pdf", "Technical Requirements.docx"],
-  },
-  {
-    id: "4",
-    title: "Financial Report",
-    preview: "Q1 financial performance and projections",
-    date: "1 week ago",
-    documents: ["Q1 Financials.pdf", "Budget Forecast.xlsx"],
-  },
-  {
-    id: "5",
-    title: "User Research",
-    preview: "Findings from the latest user testing sessions",
-    date: "2 weeks ago",
-    documents: ["User Testing Results.pdf", "Feedback Summary.docx"],
-  },
-]
-
-// Mock data for user documents
-const userDocuments = [
-  { id: "1", name: "Market Analysis.pdf", type: "pdf", size: "2.4 MB", date: "2 days ago" },
-  { id: "2", name: "Competitor Report.docx", type: "docx", size: "1.8 MB", date: "2 days ago" },
-  { id: "3", name: "Q2 Planning.pdf", type: "pdf", size: "3.2 MB", date: "3 days ago" },
-  { id: "4", name: "Product Specs.pdf", type: "pdf", size: "1.5 MB", date: "5 days ago" },
-  { id: "5", name: "Technical Requirements.docx", type: "docx", size: "2.1 MB", date: "5 days ago" },
-  { id: "6", name: "Q1 Financials.pdf", type: "pdf", size: "4.7 MB", date: "1 week ago" },
-  { id: "7", name: "Budget Forecast.xlsx", type: "xlsx", size: "1.2 MB", date: "1 week ago" },
-  { id: "8", name: "User Testing Results.pdf", type: "pdf", size: "3.5 MB", date: "2 weeks ago" },
-  { id: "9", name: "Feedback Summary.docx", type: "docx", size: "1.9 MB", date: "2 weeks ago" },
-]
+import { API_ENDPOINTS } from "@/lib/constants"
 
 interface ChatSidebarProps {
   isMobile?: boolean
@@ -79,12 +28,57 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Readonly<ChatSidebarProps>) {
+  const [conversationList, setConversationList] = useState([]);
+  const [documentList, setDocumentList] = useState([]);
   const [activeTab, setActiveTab] = useState<"chats" | "documents">("chats")
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
 
   const handleLogout = () => {
   }
+
+  useEffect(() => {
+    fetch(API_ENDPOINTS.CONVERSATIONS.LIST, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok")
+        }
+        return response.json()
+      })
+      .then((data) => {
+        console.log("Fetched conversations:", data)
+        setConversationList(data)
+      })
+      .catch((error) => {
+        console.error("Error fetching conversations:", error)
+      });
+
+    fetch(API_ENDPOINTS.DOCUMENTS.LIST, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok")
+        }
+        return response.json()
+      })
+      .then((data) => {
+        console.log("Fetched documents:", data)
+        setDocumentList(data)
+      })
+      .catch((error) => {
+        console.error("Error fetching documents:", error)
+      });
+
+  }, [])
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
@@ -93,10 +87,10 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
         <div className="flex items-center gap-2">
           <Avatar>
             <AvatarImage src="/placeholder.svg?height=40&width=40" alt={"User"} />
-            <AvatarFallback>{ "U"}</AvatarFallback>
+            <AvatarFallback>{"U"}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium text-sm">{ "User"}</p>
+            <p className="font-medium text-sm">{"User"}</p>
             <p className="text-xs text-muted-foreground">{"user@example.com"}</p>
           </div>
         </div>
@@ -203,7 +197,18 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
               </Link>
             </Button>
 
-            {chatHistory.map((chat) => (
+            {
+              conversationList?.length === 0 &&
+              (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
+                  <MessageSquare className="h-8 w-8 mb-2" />
+                  <h3 className="font-medium">No conversations yet</h3>
+                  <p className="text-sm">Start a new conversation to begin chatting</p>
+                </div>
+              )
+            }
+
+            {conversationList?.length > 0 && conversationList.map((chat) => (
               <Button
                 key={chat.id}
                 variant="ghost"
@@ -241,8 +246,18 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
                 <span>Upload</span>
               </Button>
             </div>
+            {
+              documentList?.length === 0 &&
+              (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
+                  <MessageSquare className="h-8 w-8 mb-2" />
+                  <h3 className="font-medium">No documents yet</h3>
+                  <p className="text-sm">Start a new conversation to begin chatting</p>
+                </div>
+              )
+            }
 
-            {userDocuments.map((doc) => (
+            {documentList?.length > 0 && documentList.map((doc) => (
               <Button key={doc.id} variant="ghost" className="w-full justify-start text-left h-auto py-3 px-4">
                 <div className="flex items-start gap-3 w-full">
                   <div className="bg-primary/10 p-2 rounded">

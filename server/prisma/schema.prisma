@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  BOT
+}
+
+model User {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String         @unique
+  firstName    String?
+  lastName     String?
+  clerkId      String         @unique
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  Conversation Conversation[]
+}
+
+model Conversation {
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title          String?
+  totalDocuments Int?                    @default(0)
+  lastMessage    String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @default(now()) @updatedAt
+  userId         String                  @db.Uuid
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages       Messages[]
+  documents      ConversationDocuments[]
+}
+
+model Messages {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content        String
+  messageBy      Role
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+  conversationId String       @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model ConversationDocuments {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String       @db.Uuid
+  originalName   String
+  size           Int
+  mimetype       String
+  path           String
+  url            String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
