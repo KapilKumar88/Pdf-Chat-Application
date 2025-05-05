@@ -8,6 +8,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  app.use('/webhook/clerk', bodyParser.raw({ type: 'application/json' }));
+
   // Use JSON parser for all other routes
   app.use(bodyParser.json());
   app.useGlobalPipes(new ValidationPipe());

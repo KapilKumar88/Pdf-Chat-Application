@@ -5,8 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { ConversationModule } from './api/v1/conversation/conversation.module';
 import appConfig from './config/app.config';
 import clerkConfig from './config/clerk.config';
-import { PrismaService } from './prisma.service';
 import { DocumentsModule } from './api/v1/documents/documents.module';
+import { WebhookModule } from './module/webhook/webhook.module';
+import { PrismaModule } from './module/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -16,8 +17,10 @@ import { DocumentsModule } from './api/v1/documents/documents.module';
     }),
     ConversationModule,
     DocumentsModule,
+    WebhookModule,
+    PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService],
 })
 export class AppModule {}
