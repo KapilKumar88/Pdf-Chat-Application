@@ -6,12 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { API_ENDPOINTS } from 'src/constants/route.constants';
+import { AuthGuard } from 'src/guard/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller({
   path: `${API_ENDPOINTS.V1.PREFIX}${API_ENDPOINTS.V1.ENDPOINTS.DOCUMENTS.PREFIX}`,
   version: API_ENDPOINTS.V1.VERSION,

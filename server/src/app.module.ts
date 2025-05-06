@@ -8,6 +8,7 @@ import clerkConfig from './config/clerk.config';
 import { DocumentsModule } from './api/v1/documents/documents.module';
 import { WebhookModule } from './module/webhook/webhook.module';
 import { PrismaModule } from './module/prisma/prisma.module';
+import { ClerkModule } from './module/clerk/clerk.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PrismaModule } from './module/prisma/prisma.module';
     DocumentsModule,
     WebhookModule,
     PrismaModule,
+    ClerkModule,
   ],
   controllers: [AppController],
   providers: [AppService],
