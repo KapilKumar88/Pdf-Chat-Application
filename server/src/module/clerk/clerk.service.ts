@@ -1,10 +1,14 @@
 import { verifyToken } from '@clerk/backend';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ClerkService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   async validateToken(req: Request) {
     try {
@@ -23,11 +27,18 @@ export class ClerkService {
         ], // Replace with your authorized parties
       });
 
+      const userDetails = await this.prismaService.user.findFirstOrThrow({
+        where: {
+          clerkId: verifiedToken.sub,
+        },
+      });
+
       return {
         success: true,
         message: 'Token is valid',
         userDetails: {
-          userId: verifiedToken.sub,
+          clerkId: verifiedToken.sub,
+          userId: userDetails.id,
         },
       };
     } catch (error) {

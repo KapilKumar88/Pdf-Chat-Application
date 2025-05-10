@@ -14,18 +14,14 @@ export const API_ENDPOINTS = Object.freeze({
         LIST: '/messages-list',
         DELETE: '/messages-delete',
       },
-      DOCUMENTS: {
+      DOCUMENTS_MANAGER: {
         PREFIX: '/documents',
         LIST: '/list',
       },
-    },
-  },
-  V2: {
-    PREFIX: '/api/v2',
-    ENDPOINTS: {
-      CONVERSATIONS: {},
-      MESSAGES: {},
-      DOCUMNETS: {},
+      FILE_UPLOAD: {
+        PREFIX: '/file-upload',
+        UPLOAD: '/upload',
+      },
     },
   },
 });

@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ConversationService } from './conversation.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 import { API_ENDPOINTS } from 'src/constants/route.constants';
 import { AuthGuard } from 'src/guard/auth.guard';
+import { Request } from 'src/common/interfaces';
 
 @UseGuards(AuthGuard)
 @Controller({
@@ -28,8 +30,8 @@ export class ConversationController {
   }
 
   @Get(API_ENDPOINTS.V1.ENDPOINTS.CONVERSATIONS.LIST)
-  findAll() {
-    return this.conversationService.findAll();
+  findAll(@Req() req: Request) {
+    return this.conversationService.findAll(req.user.userId);
   }
 
   @Get(':id')
