@@ -1,48 +1,58 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Bot, User, Sparkles } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Bot, User, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Message } from "@/lib/types";
+import { ROLE } from "@/lib/enum";
 
 interface ChatMessageProps {
-  message: any
-  isLast: boolean
+  message: Message;
+  isLast: boolean;
 }
 
-export default function ChatMessage({ message, isLast }: Readonly<ChatMessageProps>) {
-  const [displayedText, setDisplayedText] = useState("")
-  const [isTyping, setIsTyping] = useState(isLast && message.role === "assistant")
+export default function ChatMessage({
+  message,
+  isLast,
+}: Readonly<ChatMessageProps>) {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(
+    isLast && message.messageBy === ROLE.BOT
+  );
 
   useEffect(() => {
-    if (isLast && message.role === "assistant") {
-      setIsTyping(true)
-      let i = 0
-      const content = message.content
+    if (isLast && message.messageBy === ROLE.BOT) {
+      setIsTyping(true);
+      let i = 0;
+      const content = message.content;
 
       const interval = setInterval(() => {
-        setDisplayedText(content.substring(0, i))
-        i++
+        setDisplayedText(content.substring(0, i));
+        i++;
         if (i > content.length) {
-          clearInterval(interval)
-          setIsTyping(false)
+          clearInterval(interval);
+          setIsTyping(false);
         }
-      }, 15) // Adjust speed as needed
+      }, 15); // Adjust speed as needed
 
-      return () => clearInterval(interval)
+      return () => clearInterval(interval);
     } else {
-      setDisplayedText(message.content)
+      setDisplayedText(message.content);
     }
-  }, [isLast, message.content, message.role])
+  }, [isLast, message.content, message.messageBy]);
 
-  const isUser = message.role === "user"
+  const isUser = message.messageBy === ROLE.USER;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("flex gap-3 mb-4", isUser ? "justify-end" : "justify-start")}
+      className={cn(
+        "flex gap-3 mb-4",
+        isUser ? "justify-end" : "justify-start"
+      )}
     >
       {!isUser && (
         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -53,7 +63,9 @@ export default function ChatMessage({ message, isLast }: Readonly<ChatMessagePro
       <div
         className={cn(
           "max-w-[80%] rounded-lg p-4",
-          isUser ? "bg-primary text-primary-foreground" : "bg-secondary/50 backdrop-blur-sm",
+          isUser
+            ? "bg-primary text-primary-foreground"
+            : "bg-secondary/50 backdrop-blur-sm"
         )}
       >
         <div className="relative">
@@ -65,7 +77,10 @@ export default function ChatMessage({ message, isLast }: Readonly<ChatMessagePro
               {isTyping && (
                 <motion.span
                   animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
+                  transition={{
+                    repeat: Number.POSITIVE_INFINITY,
+                    duration: 1.5,
+                  }}
                   className="inline-block ml-1 w-2 h-4 bg-primary/40"
                 />
               )}
@@ -91,5 +106,5 @@ export default function ChatMessage({ message, isLast }: Readonly<ChatMessagePro
         </div>
       )}
     </motion.div>
-  )
+  );
 }

@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { API_ENDPOINTS } from "@/lib/constants";
 import { useAuth } from "@clerk/nextjs";
+import { Conversation } from "@/lib/types";
 
 interface ChatSidebarProps {
   isMobile?: boolean;
@@ -49,7 +50,9 @@ export function ChatSidebar({
   onClose,
 }: Readonly<ChatSidebarProps>) {
   const { getToken } = useAuth();
-  const [conversationList, setConversationList] = useState([]);
+  const [conversationList, setConversationList] = useState<Array<Conversation>>(
+    []
+  );
   const [documentList, setDocumentList] = useState([]);
   const [activeTab, setActiveTab] = useState<"chats" | "documents">("chats");
   const [searchQuery, setSearchQuery] = useState("");
@@ -238,35 +241,35 @@ export function ChatSidebar({
             )}
 
             {conversationList?.length > 0 &&
-              conversationList.map((chat) => (
+              conversationList.map((conversation) => (
                 <Button
-                  key={chat.id}
+                  key={conversation.id}
                   variant="ghost"
                   className={cn(
                     "w-full justify-start text-left h-auto py-3 px-4",
-                    pathname === `/chat/${chat.id}` && "bg-muted"
+                    pathname === `/chat/${conversation.id}` && "bg-muted"
                   )}
                   asChild
                 >
-                  <Link href={`/chat/${chat.id}`}>
+                  <Link href={`/chat/${conversation.id}`}>
                     <div className="flex flex-col items-start gap-1 w-full">
                       <div className="flex items-center w-full">
                         <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground" />
                         <span className="font-medium truncate">
-                          {chat.title}
+                          {conversation.title}
                         </span>
                         <span className="ml-auto text-xs text-muted-foreground">
-                          {chat.date}
+                          {conversation?.date ?? "date"}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground truncate w-full pl-6">
-                        {chat.preview}
+                        {conversation?.preview ?? "preview"}
                       </p>
-                      {chat.documents.length > 0 && (
+                      {conversation.totalDocuments > 0 && (
                         <div className="flex items-center gap-1 pl-6 mt-1">
                           <FileText className="h-3 w-3 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">
-                            {chat.documents.length} documents
+                            {conversation.totalDocuments} documents
                           </span>
                         </div>
                       )}

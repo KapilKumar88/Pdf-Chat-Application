@@ -6,7 +6,7 @@ export const API_ENDPOINTS = Object.freeze({
       CONVERSATIONS: {
         PREFIX: '/conversations',
         LIST: '/list',
-        CREATE: '/create',
+        ASK: '/ask',
         UPDATE: '/update',
         DELETE: '/delete',
       },

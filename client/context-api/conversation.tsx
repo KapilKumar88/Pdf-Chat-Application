@@ -1,6 +1,6 @@
 "use client";
 
-import { Document } from "@/lib/types";
+import { Document, Message } from "@/lib/types";
 import {
   createContext,
   Dispatch,
@@ -19,6 +19,8 @@ export type ConversationContextType = {
   setShowDocumentUploader: Dispatch<SetStateAction<boolean>>;
   tempFiles: Array<File>;
   setTempFiles: Dispatch<SetStateAction<Array<File>>>;
+  messageList: Array<Message>;
+  setMessageList: Dispatch<SetStateAction<Array<Message>>>;
 };
 
 const ConversationContext = createContext<ConversationContextType | null>(null);
@@ -28,6 +30,7 @@ export const ConversationProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const [messageList, setMessageList] = useState<Array<Message>>([]);
   const [tempFiles, setTempFiles] = useState<Array<File>>([]);
   const [documents, setDocuments] = useState<Array<Document>>([]);
   const [showConversationDocumentDetails, setShowConversationDocumentDetails] =
@@ -45,6 +48,8 @@ export const ConversationProvider = ({
       setShowDocumentUploader,
       tempFiles,
       setTempFiles,
+      setMessageList,
+      messageList,
     }),
     [
       documents,
@@ -55,6 +60,8 @@ export const ConversationProvider = ({
       setShowDocumentUploader,
       setTempFiles,
       tempFiles,
+      setMessageList,
+      messageList,
     ]
   );
 
