@@ -4,22 +4,22 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import ErrorBoundary from "@/components/error/error-boundary"
-import serverSideConfig from "@/config/server.config"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { ClerkProvider } from "@clerk/nextjs"
+import appConfig from "@/config/app.config"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
-    default: serverSideConfig.APP_NAME,
-    template: `%s | ${serverSideConfig.APP_NAME}`,
+    default: appConfig.APP_NAME,
+    template: `%s | ${appConfig.APP_NAME}`,
   },
-  applicationName: serverSideConfig.APP_NAME,
+  applicationName: appConfig.APP_NAME,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: serverSideConfig.APP_NAME,
+    title: appConfig.APP_NAME,
   },
   formatDetection: {
     telephone: true,

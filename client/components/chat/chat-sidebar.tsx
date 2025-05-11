@@ -1,16 +1,31 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { MessageSquare, Plus, Search, FileText, Folder, User, LogOut, Settings, X } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  MessageSquare,
+  Plus,
+  Search,
+  FileText,
+  Folder,
+  User,
+  LogOut,
+  Settings,
+  X,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,44 +33,53 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { API_ENDPOINTS } from "@/lib/constants"
+} from "@/components/ui/dropdown-menu";
+import { API_ENDPOINTS } from "@/lib/constants";
+import { useAuth } from "@clerk/nextjs";
 
 interface ChatSidebarProps {
-  isMobile?: boolean
-  isOpen?: boolean
-  onClose?: () => void
+  isMobile?: boolean;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Readonly<ChatSidebarProps>) {
+export function ChatSidebar({
+  isMobile = false,
+  isOpen = false,
+  onClose,
+}: Readonly<ChatSidebarProps>) {
+  const { getToken } = useAuth();
   const [conversationList, setConversationList] = useState([]);
   const [documentList, setDocumentList] = useState([]);
-  const [activeTab, setActiveTab] = useState<"chats" | "documents">("chats")
-  const [searchQuery, setSearchQuery] = useState("")
-  const pathname = usePathname()
+  const [activeTab, setActiveTab] = useState<"chats" | "documents">("chats");
+  const [searchQuery, setSearchQuery] = useState("");
+  const pathname = usePathname();
 
-  const handleLogout = () => {
-  }
+  const handleLogout = () => {};
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.CONVERSATIONS.LIST, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    getToken()
+      .then((token) => {
+        return fetch(API_ENDPOINTS.CONVERSATIONS.LIST, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok")
+          throw new Error("Network response was not ok");
         }
-        return response.json()
+        return response.json();
       })
       .then((data) => {
-        console.log("Fetched conversations:", data)
-        setConversationList(data)
+        console.log("Fetched conversations:", data);
+        setConversationList(data);
       })
       .catch((error) => {
-        console.error("Error fetching conversations:", error)
+        console.error("Error fetching conversations:", error);
       });
 
     fetch(API_ENDPOINTS.DOCUMENTS.LIST, {
@@ -66,19 +90,18 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok")
+          throw new Error("Network response was not ok");
         }
-        return response.json()
+        return response.json();
       })
       .then((data) => {
-        console.log("Fetched documents:", data)
-        setDocumentList(data)
+        console.log("Fetched documents:", data);
+        setDocumentList(data);
       })
       .catch((error) => {
-        console.error("Error fetching documents:", error)
+        console.error("Error fetching documents:", error);
       });
-
-  }, [])
+  }, []);
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
@@ -86,12 +109,17 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src="/placeholder.svg?height=40&width=40" alt={"User"} />
+            <AvatarImage
+              src="/placeholder.svg?height=40&width=40"
+              alt={"User"}
+            />
             <AvatarFallback>{"U"}</AvatarFallback>
           </Avatar>
           <div>
             <p className="font-medium text-sm">{"User"}</p>
-            <p className="text-xs text-muted-foreground">{"user@example.com"}</p>
+            <p className="text-xs text-muted-foreground">
+              {"user@example.com"}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -149,7 +177,7 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
             "flex-1 py-3 text-center text-sm font-medium transition-colors",
             activeTab === "chats"
               ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground",
+              : "text-muted-foreground hover:text-foreground"
           )}
           onClick={() => setActiveTab("chats")}
         >
@@ -160,7 +188,7 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
             "flex-1 py-3 text-center text-sm font-medium transition-colors",
             activeTab === "documents"
               ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground",
+              : "text-muted-foreground hover:text-foreground"
           )}
           onClick={() => setActiveTab("documents")}
         >
@@ -174,7 +202,9 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder={`Search ${activeTab === "chats" ? "chats" : "documents"}...`}
+            placeholder={`Search ${
+              activeTab === "chats" ? "chats" : "documents"
+            }...`}
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -197,45 +227,53 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
               </Link>
             </Button>
 
-            {
-              conversationList?.length === 0 &&
-              (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
-                  <MessageSquare className="h-8 w-8 mb-2" />
-                  <h3 className="font-medium">No conversations yet</h3>
-                  <p className="text-sm">Start a new conversation to begin chatting</p>
-                </div>
-              )
-            }
+            {conversationList?.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
+                <MessageSquare className="h-8 w-8 mb-2" />
+                <h3 className="font-medium">No conversations yet</h3>
+                <p className="text-sm">
+                  Start a new conversation to begin chatting
+                </p>
+              </div>
+            )}
 
-            {conversationList?.length > 0 && conversationList.map((chat) => (
-              <Button
-                key={chat.id}
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start text-left h-auto py-3 px-4",
-                  pathname === `/chat/${chat.id}` && "bg-muted",
-                )}
-                asChild
-              >
-                <Link href={`/chat/${chat.id}`}>
-                  <div className="flex flex-col items-start gap-1 w-full">
-                    <div className="flex items-center w-full">
-                      <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span className="font-medium truncate">{chat.title}</span>
-                      <span className="ml-auto text-xs text-muted-foreground">{chat.date}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground truncate w-full pl-6">{chat.preview}</p>
-                    {chat.documents.length > 0 && (
-                      <div className="flex items-center gap-1 pl-6 mt-1">
-                        <FileText className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{chat.documents.length} documents</span>
+            {conversationList?.length > 0 &&
+              conversationList.map((chat) => (
+                <Button
+                  key={chat.id}
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start text-left h-auto py-3 px-4",
+                    pathname === `/chat/${chat.id}` && "bg-muted"
+                  )}
+                  asChild
+                >
+                  <Link href={`/chat/${chat.id}`}>
+                    <div className="flex flex-col items-start gap-1 w-full">
+                      <div className="flex items-center w-full">
+                        <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-medium truncate">
+                          {chat.title}
+                        </span>
+                        <span className="ml-auto text-xs text-muted-foreground">
+                          {chat.date}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </Link>
-              </Button>
-            ))}
+                      <p className="text-xs text-muted-foreground truncate w-full pl-6">
+                        {chat.preview}
+                      </p>
+                      {chat.documents.length > 0 && (
+                        <div className="flex items-center gap-1 pl-6 mt-1">
+                          <FileText className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {chat.documents.length} documents
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                </Button>
+              ))}
           </div>
         ) : (
           <div className="space-y-1 p-2">
@@ -246,36 +284,46 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
                 <span>Upload</span>
               </Button>
             </div>
-            {
-              documentList?.length === 0 &&
-              (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
-                  <MessageSquare className="h-8 w-8 mb-2" />
-                  <h3 className="font-medium">No documents yet</h3>
-                  <p className="text-sm">Start a new conversation to begin chatting</p>
-                </div>
-              )
-            }
+            {documentList?.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
+                <MessageSquare className="h-8 w-8 mb-2" />
+                <h3 className="font-medium">No documents yet</h3>
+                <p className="text-sm">
+                  Start a new conversation to begin chatting
+                </p>
+              </div>
+            )}
 
-            {documentList?.length > 0 && documentList.map((doc) => (
-              <Button key={doc.id} variant="ghost" className="w-full justify-start text-left h-auto py-3 px-4">
-                <div className="flex items-start gap-3 w-full">
-                  <div className="bg-primary/10 p-2 rounded">
-                    <FileText className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex flex-col gap-1 flex-1 min-w-0">
-                    <span className="font-medium text-sm truncate">{doc.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs uppercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                        {doc.type}
+            {documentList?.length > 0 &&
+              documentList.map((doc) => (
+                <Button
+                  key={doc.id}
+                  variant="ghost"
+                  className="w-full justify-start text-left h-auto py-3 px-4"
+                >
+                  <div className="flex items-start gap-3 w-full">
+                    <div className="bg-primary/10 p-2 rounded">
+                      <FileText className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex flex-col gap-1 flex-1 min-w-0">
+                      <span className="font-medium text-sm truncate">
+                        {doc.name}
                       </span>
-                      <span className="text-xs text-muted-foreground">{doc.size}</span>
-                      <span className="text-xs text-muted-foreground ml-auto">{doc.date}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs uppercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                          {doc.type}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {doc.size}
+                        </span>
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          {doc.date}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Button>
-            ))}
+                </Button>
+              ))}
           </div>
         )}
       </ScrollArea>
@@ -290,7 +338,7 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
         </Button>
       </div>
     </div>
-  )
+  );
 
   if (isMobile) {
     return (
@@ -316,8 +364,10 @@ export function ChatSidebar({ isMobile = false, isOpen = false, onClose }: Reado
           </>
         )}
       </AnimatePresence>
-    )
+    );
   }
 
-  return <div className="h-full w-80 border-r bg-background">{sidebarContent}</div>
+  return (
+    <div className="h-full w-80 border-r bg-background">{sidebarContent}</div>
+  );
 }

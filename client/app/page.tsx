@@ -2,8 +2,8 @@ import { Bot, } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import serverSideConfig from "@/config/server.config"
 import { SignedIn, SignedOut } from "@clerk/nextjs"
+import appConfig from "@/config/app.config"
 
 export default function Home() {
   return (
@@ -15,7 +15,7 @@ export default function Home() {
               className="h-full flex flex-col items-center justify-center text-center p-4"
             >
               <Bot className="h-16 w-16 text-primary/40 mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Welcome to {serverSideConfig?.APP_NAME}</h2>
+              <h2 className="text-2xl font-bold mb-2">Welcome to {appConfig?.APP_NAME}</h2>
               <p className="text-muted-foreground max-w-md">
                 Upload your documents and start chatting with AI about their content. I can answer questions,
                 summarize information, and help you understand your documents better.

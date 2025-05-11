@@ -7,4 +7,7 @@ export const API_ENDPOINTS = {
   DOCUMENTS: {
     LIST: `${clientSideConfig.API_BASE_URL}/documents/list`,
   },
+  FILE_UPLOAD: {
+    UPLOAD: `${clientSideConfig.API_BASE_URL}/file-upload/upload`,
+  },
 };
